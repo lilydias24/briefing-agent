@@ -1,0 +1,11 @@
+{
+  "email": "kamysbdt@gmail.com",
+  "discord_channel_id": "CamillaBdt",
+  "topics": [
+    {
+      "name": "technology",
+      "keywords": ["IA"],
+      "max_articles": 5
+    }
+  ]
+}
