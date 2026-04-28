@@ -19,13 +19,16 @@ class NewsFetcher(BaseTool):
     def run(self, topic: str, keywords: list[str], max_articles: int) -> list[Article]:
         """Fetch articles for a topic filtered by keywords."""
         query = self._build_query(topic, keywords)
+        print(f"Fetching news with query: {query}")
         response = self._request(query, max_articles)
+        print(f"Received {len(response.get('articles', []))} articles from API")
         return self._parse_articles(response)
 
     def _build_query(self, topic: str, keywords: list[str]) -> str:
         """Build the search query string from topic and keywords."""
-        terms = [topic] + keywords
-        return " OR ".join(terms)
+        # terms = [topic] + keywords
+        # return " OR ".join(terms)
+        return keywords
 
     def _request(self, query: str, max_articles: int) -> dict:
         """Send HTTP request to NewsAPI and return parsed JSON."""

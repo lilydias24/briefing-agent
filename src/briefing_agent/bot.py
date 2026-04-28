@@ -6,7 +6,6 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 from briefing_agent.agents.setup_agent import SetupAgent
-from briefing_agent.models.preferences import UserPreferences
 from briefing_agent.storage.json_storage import JsonStorage
 
 load_dotenv()
@@ -17,7 +16,6 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 storage = JsonStorage()
 setup_agent = SetupAgent(storage=storage)
-pending_preferences: dict[int, UserPreferences] = {}
 
 
 @bot.event
@@ -31,7 +29,7 @@ async def on_message(message: discord.Message) -> None:
     """Handle incoming messages and forward to setup agent."""
     if message.author.bot:
         return
-    response = setup_agent.run(message.content)
+    response = setup_agent.run(message.content, session_id=str(message.author.id))
     await message.channel.send(response)
     await bot.process_commands(message)
 

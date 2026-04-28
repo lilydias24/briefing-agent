@@ -25,7 +25,7 @@ def build_scheduler(agent: BriefingAgent, storage: JsonStorage) -> BriefingSched
     return BriefingScheduler(
         agent=agent,
         storage=storage,
-        hour=7,
+        hour=1,
         minute=0,
     )
 

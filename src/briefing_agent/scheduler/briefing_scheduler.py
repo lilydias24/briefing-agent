@@ -1,14 +1,50 @@
-# ... (resto do código igual)
+from apscheduler.schedulers.background import BackgroundScheduler
+
+from briefing_agent.agents.briefing_agent import BriefingAgent
+from briefing_agent.scheduler.base import BaseScheduler
+from briefing_agent.storage.base import BaseStorage
+
+
+class BriefingScheduler(BaseScheduler):
+    """Schedules the briefing agent to run at a specific time each day."""
+
+    def __init__(
+        self,
+        agent: BriefingAgent,
+        storage: BaseStorage,
+        hour: int = 7,
+        minute: int = 0,
+    ) -> None:
+        """Initialize the scheduler with agent and storage dependencies."""
+        self._agent = agent
+        self._storage = storage
+        self._hour = hour
+        self._minute = minute
+        self._scheduler = BackgroundScheduler()
 
     def start(self) -> None:
         """Start the scheduler."""
-        # Agenda para rodar às 7 da manhã
         self._scheduler.add_job(
             self._run_briefing,
             'cron',
-            hour=7,
-            minute=0,
+            hour=self._hour,
+            minute=self._minute,
             id='briefing_job',
         )
         self._scheduler.start()
-        print(f"✅ Scheduler iniciado! Rodando diariamente às 7:00.")
+        print(f"✅ Scheduler iniciado! Rodando diariamente às {self._hour}:{self._minute:02d}.")
+
+    def stop(self) -> None:
+        """Stop the scheduler."""
+        self._scheduler.shutdown()
+        print("✅ Scheduler parado.")
+
+    def _run_briefing(self) -> None:
+        """Execute the briefing agent."""
+        try:
+            preferences = self._storage.load()
+            if preferences:
+                self._agent.run(preferences)
+                print("✅ Briefing gerado e enviado!")
+        except Exception as e:
+            print(f"❌ Erro ao gerar briefing: {e}")

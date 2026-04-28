@@ -1,11 +1,13 @@
 {
   "email": "kamysbdt@gmail.com",
-  "discord_channel_id": "CamillaBdt",
+  "discord_channel_id": "geral",
   "topics": [
     {
-      "name": "technology",
-      "keywords": ["IA"],
-      "max_articles": 5
+      "name": "OIEEE",
+      "keywords": [
+        "Lula Brazil"
+      ],
+      "max_articles": 9
     }
   ]
 }
