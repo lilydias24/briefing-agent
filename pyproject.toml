@@ -9,11 +9,10 @@ requires-python = ">=3.11"
 dependencies = [
     "agno",
     "discord.py",
-    "aiosmtplib",
     "apscheduler",
-    "pydantic",
-    "httpx",
+    "pydantic    "httpx",
     "python-dotenv",
+    "groq",
 ]
 
 [project.optional-dependencies]
