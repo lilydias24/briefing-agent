@@ -10,7 +10,8 @@ dependencies = [
     "agno",
     "discord.py",
     "apscheduler",
-    "pydantic    "httpx",
+    "pydantic",    
+    "httpx",
     "python-dotenv",
     "groq",
 ]
