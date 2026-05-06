@@ -34,7 +34,7 @@ CONFIRMATION_TEMPLATE = (
 class _SetupSession:
     """Temporary in-memory state while a user is configuring preferences."""
 
-    step: int = 1
+    step: int = 0
     topics: list[str] = field(default_factory=list)
     keywords_by_topic: dict[str, list[str]] = field(default_factory=dict)
     max_articles: int = 5
@@ -65,13 +65,18 @@ class SetupAgent(BaseAgent):
         message = user_message.strip()
 
         if not message:
-            return self._question_for_step(session.step)
+            current_step = session.step if session.step > 0 else 1
+            return self._question_for_step(current_step)
 
         if message.lower() in RESET_COMMANDS:
-            self._sessions[session_id] = _SetupSession()
+            self._sessions[session_id] = _SetupSession(step=1)
             return self._question_for_step(1)
 
         try:
+            if session.step == 0:
+                session.step = 1
+                return self._question_for_step(1)
+            
             if session.step == 1:
                 session.topics = self._parse_csv(message)
                 if not session.topics:
