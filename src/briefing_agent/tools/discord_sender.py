@@ -27,4 +27,12 @@ class DiscordSender(BaseTool):
         """Send a single message chunk to Discord API."""
         url = f"{self.BASE_URL}/channels/{channel_id}/messages"
         headers = {"Authorization": f"Bot {self._token}"}
-        httpx.post(url, json={"content": content}, headers=headers, timeout=10)
+        try:
+            response = httpx.post(
+                url, json={"content": content}, headers=headers, timeout=10
+            )
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            print(f"Discord API error {exc.response.status_code}: {exc}")
+        except httpx.RequestError as exc:
+            print(f"Discord request failed: {exc}")
