@@ -24,8 +24,31 @@ class NewsFetcher(BaseTool):
 
     def _build_query(self, topic: str, keywords: list[str]) -> str:
         """Build the search query string from topic and keywords."""
-        terms = [topic] + keywords
-        return " OR ".join(terms)
+        def _quote(term: str) -> str:
+            if not term:
+                return ""
+            # remove stray double-quotes and wrap multi-word terms in quotes
+            term = term.replace('"', '')
+            return f'"{term}"' if " " in term else term
+
+        topic_q = _quote(topic)
+        # Filter out empty keywords and deduplicate while preserving order
+        seen = set()
+        kws = []
+        for k in keywords:
+            if not k:
+                continue
+            k = k.strip()
+            if not k or k in seen or k == topic:
+                continue
+            seen.add(k)
+            kws.append(_quote(k))
+
+        if kws:
+            # require the topic AND at least one of the keywords
+            return f"{topic_q} AND ({' OR '.join(kws)})"
+
+        return topic_q
   
 
     def _request(self, query: str, max_articles: int) -> dict:
@@ -37,7 +60,20 @@ class NewsFetcher(BaseTool):
             "language": "pt",
             "apiKey": self._api_key,
         }
-        response = httpx.get(self.BASE_URL, params=params, timeout=10)
+        # Allow configuring SSL verification via environment variable:
+        # - If NEWS_API_VERIFY is "false" (case-insensitive) verification is disabled (not recommended).
+        # - If NEWS_API_VERIFY is a path to a CA bundle file, it will be used.
+        verify_env = os.getenv("NEWS_API_VERIFY", "").strip()
+        if verify_env:
+            if verify_env.lower() in ("false", "0", "no", "off"):
+                verify = False
+            else:
+                verify = verify_env
+        else:
+            verify = True
+
+        print(f"HTTP verify setting: {verify}")
+        response = httpx.get(self.BASE_URL, params=params, timeout=10, verify=verify)
         response.raise_for_status()
         return response.json()
 
