@@ -17,3 +17,5 @@ class UserPreferences:
     topics: list[TopicPreference] = field(default_factory=list)
     email: str = ""
     discord_channel_id: str = ""
+    schedule_hour: int = 7
+    schedule_minute: int = 0

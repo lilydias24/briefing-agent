@@ -24,27 +24,57 @@ def build_briefing_agent(storage: JsonStorage) -> BriefingAgent:
 
 def build_scheduler(agent: BriefingAgent, storage: JsonStorage) -> BriefingScheduler:
     """Instantiate the scheduler with storage and agent dependencies."""
+    preferences = storage.load()
+    hour = preferences.schedule_hour if preferences else 1
+    minute = preferences.schedule_minute if preferences else 0
+    
     return BriefingScheduler(
         agent=agent,
         storage=storage,
-        hour=1,
-        minute=0,
+        hour=hour,
+        minute=minute,
     )
 
 
 def main() -> None:
-    """Load environment variables and start the scheduler and Discord bot."""
+    """Load environment variables and start the scheduler and Discord bot concurrently."""
     load_dotenv()
 
     storage = JsonStorage()
+    preferences = storage.load()
+    
+    if preferences:
+        print(f"✅ Preferences loaded: {preferences.email} | Schedule: {preferences.schedule_hour:02d}:{preferences.schedule_minute:02d}")
+    else:
+        print("⚠️  No preferences found. Starting setup mode...")
+    
     setup_agent = SetupAgent(storage=storage)
     briefing_agent = build_briefing_agent(storage)
     scheduler = build_scheduler(briefing_agent, storage)
 
-    scheduler_thread = threading.Thread(target=scheduler.start, daemon=True)
-    scheduler_thread.start()
+    # Attach scheduler to setup agent so it can request reschedules after setup
+    setup_agent.attach_scheduler(scheduler)
 
-    run_bot(setup_agent)
+    # APScheduler manages its own background thread, so start it directly here.
+    scheduler.start()
+    print(f"🚀 Scheduler initialized (time: {scheduler._hour:02d}:{scheduler._minute:02d})")
+
+    # Start Discord bot in a background thread because bot.run() is blocking.
+    print("🤖 Starting Discord bot in background thread...")
+    bot_thread = threading.Thread(target=run_bot, args=(setup_agent,), daemon=False, name="BotThread")
+    bot_thread.start()
+
+    # Keep the process alive and only monitor the bot thread.
+    try:
+        bot_thread.join()
+        print("[main] Bot thread finished.")
+    except KeyboardInterrupt:
+        print("\n[main] Shutdown signal received. Stopping scheduler and bot...")
+        scheduler.stop()
+        print("[main] Scheduler stopped.")
+        # Bot will stop gracefully on its own when threads join
+        bot_thread.join(timeout=5)
+        print("[main] All threads stopped. Goodbye!")
 
 
 if __name__ == "__main__":

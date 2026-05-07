@@ -19,6 +19,8 @@ class JsonStorage(BaseStorage):
         data = {
             "email": preferences.email,
             "discord_channel_id": preferences.discord_channel_id,
+            "schedule_hour": preferences.schedule_hour,
+            "schedule_minute": preferences.schedule_minute,
             "topics": [
                 {
                     "name": t.name,
@@ -52,6 +54,8 @@ class JsonStorage(BaseStorage):
             email=data["email"],
             discord_channel_id=data["discord_channel_id"],
             topics=topics,
+            schedule_hour=data.get("schedule_hour", 7),
+            schedule_minute=data.get("schedule_minute", 0),
         )
 
     def save_briefing(self, briefing: Briefing) -> None:

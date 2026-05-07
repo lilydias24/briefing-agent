@@ -21,13 +21,15 @@ QUESTIONS = {
     3: "What is the maximum number of articles per topic? Example: 5",
     4: "Which email should receive the briefing?",
     5: "What is the Discord channel ID that should receive the briefing?",
+    6: "What time should the briefing be sent? Format: HH:MM (e.g., 14:30)",
 }
 
 CONFIRMATION_TEMPLATE = (
     "Preferences saved successfully.\n"
     "Topics: {topics}\n"
     "Email: {email}\n"
-    "Discord Channel: {discord}"
+    "Discord Channel: {discord}\n"
+    "Briefing Time: {schedule_time}"
 )
 
 @dataclass
@@ -40,6 +42,8 @@ class _SetupSession:
     max_articles: int = 5
     email: str = ""
     discord_channel_id: str = ""
+    schedule_hour: int = 7
+    schedule_minute: int = 0
 
 
 class SetupAgent(BaseAgent):
@@ -49,6 +53,12 @@ class SetupAgent(BaseAgent):
         """Initialize with a storage dependency for saving preferences."""
         self._storage = storage
         self._sessions: dict[str, _SetupSession] = {}
+        self._scheduler = None
+
+    def attach_scheduler(self, scheduler) -> None:
+        """Attach a running scheduler so the setup agent can request reschedules."""
+        self._scheduler = scheduler
+
 
     def run(self, user_message: str, session_id: str = "default") -> str:
         """Process a user message, update the setup state, and persist when complete.
@@ -104,6 +114,13 @@ class SetupAgent(BaseAgent):
 
             if session.step == 5:
                 session.discord_channel_id = message
+                session.step = 6
+                return self._question_for_step(6)
+
+            if session.step == 6:
+                hour, minute = self._parse_time(message)
+                session.schedule_hour = hour
+                session.schedule_minute = minute
                 preferences = self._build_preferences(session)
                 self.save_preferences(preferences)
                 del self._sessions[session_id]
@@ -117,6 +134,14 @@ class SetupAgent(BaseAgent):
     def save_preferences(self, preferences: UserPreferences) -> None:
         """Persist the collected user preferences."""
         self._storage.save(preferences)
+        # If a scheduler is attached, request a reschedule so new time takes effect immediately
+        try:
+            if self._scheduler is not None:
+                self._scheduler.reschedule()
+                print("[setup] Scheduler notified of updated preferences.")
+        except Exception:
+            # Keep setup flow resilient; don't crash on scheduler errors
+            print("[setup] Failed to notify scheduler about preference changes.")
 
     def _build_preferences(self, session: _SetupSession) -> UserPreferences:
         topics = [
@@ -131,6 +156,8 @@ class SetupAgent(BaseAgent):
             topics=topics,
             email=session.email,
             discord_channel_id=session.discord_channel_id,
+            schedule_hour=session.schedule_hour,
+            schedule_minute=session.schedule_minute,
         )
 
     def _question_for_step(self, step: int) -> str:
@@ -138,11 +165,15 @@ class SetupAgent(BaseAgent):
 
     def _confirmation(self, preferences: UserPreferences) -> str:
         topic_names = ", ".join(topic.name for topic in preferences.topics)
-        return CONFIRMATION_TEMPLATE.format(
+        schedule_time = f"{preferences.schedule_hour:02d}:{preferences.schedule_minute:02d}"
+        confirmation = CONFIRMATION_TEMPLATE.format(
             topics=topic_names, 
             email=preferences.email, 
-            discord=preferences.discord_channel_id
+            discord=preferences.discord_channel_id,
+            schedule_time=schedule_time
         )
+        print(f"\n✅ [SETUP COMPLETED] All preferences received and saved successfully!")
+        return confirmation
 
     def _parse_csv(self, value: str) -> list[str]:
         return [item.strip() for item in value.split(",") if item.strip()]
@@ -184,3 +215,30 @@ class SetupAgent(BaseAgent):
     def _extract_email(self, value: str) -> str:
         match = re.search(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", value)
         return match.group(0) if match else ""
+
+    def _parse_time(self, value: str) -> tuple[int, int]:
+        """Parse time in HH:MM format.
+        
+        Returns
+        -------
+        tuple[int, int]
+            A tuple of (hour, minute).
+
+        Raises
+        ------
+        ValueError
+            If the format is invalid or values are out of range.
+        """
+        match = re.search(r"(\d{1,2}):(\d{2})", value)
+        if not match:
+            raise ValueError("Please provide time in HH:MM format. Example: 14:30")
+        
+        hour = int(match.group(1))
+        minute = int(match.group(2))
+        
+        if not (0 <= hour <= 23):
+            raise ValueError("Hour must be between 0 and 23.")
+        if not (0 <= minute <= 59):
+            raise ValueError("Minute must be between 0 and 59.")
+        
+        return hour, minute
