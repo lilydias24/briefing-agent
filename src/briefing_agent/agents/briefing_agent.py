@@ -129,7 +129,7 @@ class BriefingAgent(BaseAgent):
         """Send the generated briefing by email and Discord."""
         self._email_sender.run(
             preferences.email,
-            "Your Daily Briefing",
+            "Seu Resumo Diário",
             content,
         )
 
