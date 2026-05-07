@@ -1,5 +1,9 @@
+# Runtime data files (generated at runtime, must not be committed)
 briefings.json
 preferences.json
+
+# Claude Code agent workspace
+.claude/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
