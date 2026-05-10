@@ -57,7 +57,7 @@ class NewsFetcher(BaseTool):
             "q": query,
             "pageSize": max_articles,
             "sortBy": "publishedAt",
-            "language": "pt",
+            "language": "en",
             "apiKey": self._api_key,
         }
         # Allow configuring SSL verification via environment variable:
