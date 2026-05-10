@@ -16,6 +16,33 @@ The user configures their preferences entirely through a Discord conversation wi
 
 ## Installation
 
+### Option 1 — uv (recommended)
+
+[uv](https://docs.astral.sh/uv/) is a fast Python package manager. If you don't have it installed:
+
+```bash
+pip install uv
+```
+
+Then set up the project:
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd grupo-17
+
+# 2. Create a virtual environment and install dependencies
+uv sync
+
+# 3. Activate the virtual environment
+# Linux/macOS:
+source .venv/bin/activate
+# Windows:
+.venv\Scripts\activate
+```
+
+### Option 2 — pip
+
 ```bash
 # 1. Clone the repository
 git clone <repository-url>
