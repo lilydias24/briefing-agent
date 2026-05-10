@@ -281,13 +281,13 @@ class TestRunWithMockHttp:
         params = mock_get.call_args.kwargs["params"]
         assert params["apiKey"] == "test-key-xyz"
 
-    def test_run_requests_portuguese_language(self, fetcher: NewsFetcher) -> None:
-        """run() always requests Portuguese ('pt') articles from the API."""
+    def test_run_requests_english_language(self, fetcher: NewsFetcher) -> None:
+        """run() always requests English ('en') articles from the API."""
         mock_resp = _make_http_response({"articles": []})
         with patch("httpx.get", return_value=mock_resp) as mock_get:
             fetcher.run("technology", [], 5)
         params = mock_get.call_args.kwargs["params"]
-        assert params["language"] == "pt"
+        assert params["language"] == "en"
 
     def test_run_with_no_keywords_still_works(self, fetcher: NewsFetcher) -> None:
         """run() succeeds and returns articles even when the keywords list is empty."""
