@@ -177,7 +177,7 @@ grupo-17/
 
 - Test suite for the models (including edge cases), the full `SetupAgent` flow and
   the `NewsFetcher` query building and article parsing, plus the pytest setup.
-- HTML formatting for the briefing email, including its Portuguese subject and header title.
+- HTML formatting for the briefing email and adjustments to its subject line.
 
 ## About this repository
 
