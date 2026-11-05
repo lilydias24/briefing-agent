@@ -172,3 +172,15 @@ grupo-17/
 | `pytest` | Test runner |
 | `pytest-asyncio` | Async test support |
 | `ruff` | Linter and formatter |
+
+## My contribution
+
+- Test suite for the models (including edge cases), the full `SetupAgent` flow and
+  the `NewsFetcher` query building and article parsing, plus the pytest setup.
+- HTML formatting for the briefing email, including its Portuguese subject and header title.
+
+## About this repository
+
+Group project for the LPESI course at UNIPAMPA (2026/1). This is a copy, with full
+history, of the group's original GitLab repository. Contributor emails were anonymized
+in the history.
