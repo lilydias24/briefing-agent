@@ -8,6 +8,9 @@ A system that automatically generates personalized news briefings and distribute
 
 The user configures their preferences entirely through a Discord conversation with the bot (topics of interest, keywords, email address, delivery time). At the configured time every day, the agent fetches recent news from NewsAPI, formats a consolidated briefing using a Groq LLM, and delivers it to the configured Discord channel and email address.
 
+<p align="center"><img src="docs/img/briefing-email.png" width="540" alt="Briefing email rendered by the HTML template"></p>
+<p align="center"><sub>Email rendered by the project's HTML template (illustrative news content).</sub></p>
+
 ## Requirements
 
 - Python 3.11+
