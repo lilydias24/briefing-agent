@@ -1,5 +1,7 @@
 # Briefing Agent
 
+[![tests](https://github.com/lilydias24/briefing-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/lilydias24/briefing-agent/actions/workflows/tests.yml)
+
 A system that automatically generates personalized news briefings and distributes them via Discord and email using AI agents.
 
 ## How it works
