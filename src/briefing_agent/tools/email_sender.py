@@ -77,7 +77,9 @@ class EmailSender(BaseTool):
         text = html.escape(text)
         text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
         text = re.sub(
-            r"(https?://[^\s&lt;&gt;&quot;]+)",
+            # The text is already escaped, so the URL ends at whitespace or at an
+            # escaped <, > or " entity (matched as whole entities, not characters).
+            r"(https?://(?:(?!&lt;|&gt;|&quot;)\S)+)",
             r'<a href="\1" style="color:#4f46e5;">\1</a>',
             text,
         )

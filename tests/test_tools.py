@@ -106,6 +106,21 @@ class TestEmailSenderBuildMessage:
         assert "Hello world" in rendered
         assert "<!DOCTYPE html>" in rendered
 
+    def test_url_is_linked_in_full(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """A URL becomes a single link covering the whole address."""
+        sender = _make_email_sender(monkeypatch)
+        formatted = sender._fmt("Source: https://example.com/solar-auction")
+        assert '<a href="https://example.com/solar-auction"' in formatted
+        assert ">https://example.com/solar-auction</a>" in formatted
+
+    def test_url_link_stops_before_escaped_quote(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A quote right after a URL is not swallowed into the link."""
+        sender = _make_email_sender(monkeypatch)
+        formatted = sender._fmt('see "https://example.com/a"')
+        assert '<a href="https://example.com/a"' in formatted
+
 
 class TestEmailSenderSend:
     """Tests for the SMTP interaction performed by EmailSender._send and run()."""
