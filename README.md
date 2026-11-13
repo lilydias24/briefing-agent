@@ -28,8 +28,8 @@ Then set up the project:
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
-cd grupo-17
+git clone https://github.com/lilydias24/briefing-agent.git
+cd briefing-agent
 
 # 2. Create a virtual environment and install dependencies
 uv sync
@@ -45,8 +45,8 @@ source .venv/bin/activate
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
-cd grupo-17
+git clone https://github.com/lilydias24/briefing-agent.git
+cd briefing-agent
 
 # 2. Install the package and development dependencies
 pip install -e ".[dev]"
@@ -122,7 +122,7 @@ python -m pytest -v
 ## Project structure
 
 ```
-grupo-17/
+briefing-agent/
 ├── .env.example              # Environment variable template
 ├── .gitignore
 ├── pyproject.toml            # Project metadata and dependencies
